@@ -3,7 +3,9 @@ import praw
 import logging
 import requests 
 
-logging.basicConfig(format = '', level = logging.INFO)
+logging.basicConfig(format = '')
+logger = logging.getLogger("yfinance")
+logger.setLevel(logging.INFO)
 
 
 reddit = praw.Reddit(
@@ -12,17 +14,15 @@ reddit = praw.Reddit(
         user_agent= config.user_agent
 )
 
-whitelist = {
-    'APPL': ['$APPL', 'Apple', 'IPhone'], 
-    'NVDA': ['$NVDA', 'Nvidia', 'CUDA', 'AI', '$TSMC'],
-    'MSFT': ['$MSFT', 'Microsoft', 'Satya Nadella', 'OpenAI'],
-    'GOOGL': ['$GOOG', '$GOOGL', 'Google', 'Alphabet', 'Gemini'],
-    'TSLA': ['$TSLA', 'Tesla', 'Cybertruck']
-
+keywords = {
+    'APPL': ['APPL', '$APPL', 'Apple', 'IPhone'], 
+    'NVDA': ['NVDA', '$NVDA', 'Nvidia', 'CUDA', 'AI', 'Jensen Huang'],
+    'MSFT': ['MSFT', '$MSFT', 'Microsoft', 'Satya Nadella', 'OpenAI'],
+    'GOOGL': ['GOOGL', '$GOOG', '$GOOGL', 'Google', 'Alphabet', 'Gemini'],
+    'TSLA': ['TSLA', '$TSLA', 'Tesla', 'Cybertruck', 'Starlink'],
+    'AMD': ['Lisa Su', ]
 }
 
-reddit_log = logging.getLogger("reddit")
-reddit_log.setLevel(logging.INFO)
 
 
 def find_sentiment(sentence):   
@@ -35,39 +35,46 @@ def find_sentiment(sentence):
     from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer        # Vader is optimized for social media data and can yield good results when used with data from twitter, facebook, etc.
 
     textblob = TextBlob(sentence)
-
+    
     
     analyzer = SentimentIntensityAnalyzer()
-    vader = analyzer.polarity_scores(sentence)
-    
-
-    if vader['compound'] > 0  and textblob.polarity > 0: 
+    vader = analyzer.polarity_scores(sentence)      #
+    # https://github.com/cjhutto/vaderSentiment?tab=readme-ov-file#about-the-scoring
+    if vader['compound'] >= 0.05  and textblob.polarity >= 0: 
         sentiment = 'positive'
     
-    elif vader['compound'] < 0 and textblob.polarity < 0: 
+    elif vader['compound'] <= -0.05 and textblob.polarity <= 0: 
         sentiment = 'negative'
 
     else: sentiment = 'netural'
 
     
     avg_polarity = (vader['compound'] + textblob.polarity) / 2
-
-    print(avg_polarity, textblob)
-    return sentiment, avg_polarity
+    logger.info(f"{sentiment}, {vader['compound']} , {textblob.polarity}")
+    return sentiment, vader['compound'], textblob.polarity
     
 
-def news_headlines(ticker):
-    from bs4 import BeautifulSoup
+def news_headlines(ticker : str):
+    import yfinance as yf    
+    import datetime
 
-    source = 'https://finance.yahoo.com/quote/%s/news?p=%s' % (ticker, ticker)         # scrape from yahoo finance landing page 
-    header = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0'}
+    source = 'https://finance.yahoo.com/quote/%s/news?p=%s' % (ticker, ticker)
+    blacklist = ["Motley Fool", "Insider Monkey", "Investor's Business Daily"]
 
-    filter = []                                                     # to filter out the low-quality articles
-    
-    html = requests.get(source, headers = header)
-    soup = BeautifulSoup(html.text, 'html.parser')
-    soup.find_all('h3')
+    stock = yf.Ticker(ticker)
+    for news in stock.news: 
 
+        # filter out low-quality articles 
+        for word in keywords[ticker]: 
+            if word.lower() in news['title'].lower() and news['publisher'] not in blacklist:
+
+                epoch = news['providerPublishTime']          # The time the article was published, represented as a Unix timestamp.
+                date = datetime.datetime.fromtimestamp(epoch).strftime('%c')
+                logger.info(f"{date}, {news['title']}, {news['link']}, {news['publisher']}")
+                find_sentiment(news['title'])
+                break 
+
+        
 
 
 
@@ -81,20 +88,7 @@ def news_headlines(ticker):
 #                 find_sentiment(submission.title)
 #                 break 
     
-
-from bs4 import BeautifulSoup
-import time 
-
-ticker = 'AAPL' 
-source = 'https://finance.yahoo.com/quote/%s/news?p=%s' % (ticker, ticker)         # scrape from yahoo finance landing page 
-header = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:76.0) Gecko/20100101 Firefox/76.0'}
-
-filter = []                                                     # to filter out the low-quality articles
-
-html = requests.get(source, headers = header)
-time.sleep(5)
-soup = BeautifulSoup(html.text, 'html.parser')
-print(soup.find_all('h3'))
+news_headlines('NVDA')
 
 
 
