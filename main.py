@@ -16,11 +16,11 @@ reddit = praw.Reddit(
 
 keywords = {
     'APPL': ['APPL', '$APPL', 'Apple', 'IPhone'], 
-    'NVDA': ['NVDA', '$NVDA', 'Nvidia', 'CUDA', 'AI', 'Jensen Huang'],
+    'NVDA': ['NVDA', '$NVDA', 'Nvidia', 'CUDA', 'Artifical Intelligence', 'Jensen Huang'],
     'MSFT': ['MSFT', '$MSFT', 'Microsoft', 'Satya Nadella', 'OpenAI'],
     'GOOGL': ['GOOGL', '$GOOG', '$GOOGL', 'Google', 'Alphabet', 'Gemini'],
     'TSLA': ['TSLA', '$TSLA', 'Tesla', 'Cybertruck', 'Starlink'],
-    'AMD': ['Lisa Su', ]
+    'AMZN': ['AMZN', '$AMZN', 'Amazon', 'Jeff Bezos', 'Prime'] 
 }
 
 
@@ -51,8 +51,19 @@ def find_sentiment(sentence):
     
     avg_polarity = (vader['compound'] + textblob.polarity) / 2
     logger.info(f"{sentiment}, {vader['compound']} , {textblob.polarity}")
-    return sentiment, vader['compound'], textblob.polarity
+    return sentiment, avg_polarity
     
+
+def elastic_index(ticker : str):
+    from elasticsearch.exceptions import BadRequestError
+    index_name = 'stock-%s' % ticker.lower()
+    try: 
+        es.indices.create(index= index_name, body=config.mapping)    
+    except BadRequestError:
+        logger.info(f"index {index_name} already exists")
+
+    return index_name
+
 
 def news_headlines(ticker : str):
     import yfinance as yf    
@@ -60,8 +71,11 @@ def news_headlines(ticker : str):
 
     source = 'https://finance.yahoo.com/quote/%s/news?p=%s' % (ticker, ticker)
     blacklist = ["Motley Fool", "Insider Monkey", "Investor's Business Daily"]
-
     stock = yf.Ticker(ticker)
+    index_name = elastic_index(ticker)
+    
+    logger.info(f"{ticker} news: " + str([news['title'] for news in stock.news]))
+
     for news in stock.news: 
 
         # filter out low-quality articles 
@@ -69,9 +83,22 @@ def news_headlines(ticker : str):
             if word.lower() in news['title'].lower() and news['publisher'] not in blacklist:
 
                 epoch = news['providerPublishTime']          # The time the article was published, represented as a Unix timestamp.
-                date = datetime.datetime.fromtimestamp(epoch).strftime('%c')
+                date = datetime.datetime.fromtimestamp(epoch).isoformat()
+
                 logger.info(f"{date}, {news['title']}, {news['link']}, {news['publisher']}")
-                find_sentiment(news['title'])
+                sentiment = find_sentiment(news['title'])
+
+                # add to elasticsearch, assign unique uuid to prevent duplicates
+                es.index(index = index_name, id = news['uuid'], 
+                    body = {
+                        'date': date, 
+                        'title': news['title'],
+                        'polarity': sentiment[1],
+                        'sentiment': sentiment[0],
+                        'url': news['link'],
+                        'publisher' : news['publisher']
+                    })
+                
                 break 
 
         
@@ -88,15 +115,18 @@ def news_headlines(ticker : str):
 #                 find_sentiment(submission.title)
 #                 break 
     
-news_headlines('NVDA')
+# news_headlines('NVDA')
 
 
 
 
+from elasticsearch import Elasticsearch
 
+es = Elasticsearch(
+    cloud_id = config.cloud_id,
+    basic_auth =('elastic', config.password)
+)
 
-def main():
-    pass
-
-if __name__ == '__main__':
-    main() 
+# populate elasticsearch indices with news documents 
+for stock in keywords: 
+    news_headlines(stock)
