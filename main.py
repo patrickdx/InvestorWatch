@@ -15,7 +15,7 @@ reddit = praw.Reddit(
 )
 
 keywords = {
-    'APPL': ['APPL', '$APPL', 'Apple', 'IPhone'], 
+    'AAPL': ['APPL', '$APPL', 'Apple', 'IPhone'], 
     'NVDA': ['NVDA', '$NVDA', 'Nvidia', 'CUDA', 'Artifical Intelligence', 'Jensen Huang'],
     'MSFT': ['MSFT', '$MSFT', 'Microsoft', 'Satya Nadella', 'OpenAI'],
     'GOOGL': ['GOOGL', '$GOOG', '$GOOGL', 'Google', 'Alphabet', 'Gemini'],
@@ -66,6 +66,7 @@ def elastic_index(ticker : str):
 
 
 def news_headlines(ticker : str):
+    # TODO: Get a more accurate price quote, based on the time of release of an article.
     import yfinance as yf    
     import datetime
 
@@ -96,7 +97,8 @@ def news_headlines(ticker : str):
                         'polarity': sentiment[1],
                         'sentiment': sentiment[0],
                         'url': news['link'],
-                        'publisher' : news['publisher']
+                        'publisher' : news['publisher'],
+                        'price': stock.info['currentPrice']     
                     })
                 
                 break 
@@ -117,16 +119,38 @@ def news_headlines(ticker : str):
     
 # news_headlines('NVDA')
 
-
+# es = Elasticsearch(     # for cloud subscription
+#     cloud_id = config.cloud_id,
+#     basic_auth =('elastic', config.password)
+# )
 
 
 from elasticsearch import Elasticsearch
 
-es = Elasticsearch(
-    cloud_id = config.cloud_id,
-    basic_auth =('elastic', config.password)
-)
+es = Elasticsearch(hosts=[{'host': 'localhost', 'port': 9200, 'scheme': 'http'}],
+                basic_auth =(config.es_user, config.es_password))
+
+
 
 # populate elasticsearch indices with news documents 
 for stock in keywords: 
     news_headlines(stock)
+
+def viewIndex(index): 
+    ''' 
+    Views the indexes/documents housed in the elastic search cluster
+    or just visit http://localhost:9200/stock-tsla/_search?pretty in your browser
+    '''
+    elasticsearch_url = "http://%s:%s@localhost:9200%s/_search?pretty"  % (config.es_user, config.es_password, index)
+    response = requests.get(elasticsearch_url) 
+    print(response.text)
+
+def clear_indexes():
+    indices = es.indices.get_alias(index = "*")
+
+    # Delete each index
+    for index_name in indices:
+        es.indices.delete(index=index_name, ignore=[400, 404])
+
+    logger.info("All indices deleted.")
+
