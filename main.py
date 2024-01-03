@@ -68,7 +68,7 @@ class NewsHeadlineIndexer:
         
         import datetime
 
-        blacklist = ["Motley Fool", "Insider Monkey"] # "Investor's Business Daily"
+        blacklist = ["Motley Fool", "Insider Monkey", "Investor's Business Daily"]
         stock = self.yf.Ticker(ticker)
         index_name = self.create_index(ticker)
         
@@ -164,5 +164,6 @@ def clear_indexes():
 if __name__ == '__main__':      
     # populate elasticsearch indices with news documents 
     for stock in keywords: 
-        news_headlines(stock)
+        news = NewsHeadlineIndexer()
+        news.news_headlines(stock)      # TODO: add summary of articles added to each index
 
