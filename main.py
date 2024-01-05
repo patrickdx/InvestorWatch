@@ -2,17 +2,14 @@ import config
 import praw 
 import logging
 import requests 
+import datetime
 
 logging.basicConfig(format = '')
 logger = logging.getLogger("yfinance")
 logger.setLevel(logging.INFO)
 
 
-reddit = praw.Reddit(
-        client_id = config.client_id,
-        client_secret = config.client_secret,
-        user_agent= config.user_agent
-)
+
 
 keywords = {
     'AAPL': ['APPL', '$APPL', 'Apple', 'IPhone'], 
@@ -25,7 +22,7 @@ keywords = {
 
 
 
-def find_sentiment(sentence):   
+def find_sentiment(sentence):   # TODO: Improve accuracy of these models or use a self-made one
     '''
     Determines the emotional value of a given expression in natural language. 
     Uses textblob and Vader https://neptune.ai/blog/sentiment-analysis-python-textblob-vs-vader-vs-flair
@@ -64,9 +61,7 @@ class NewsHeadlineIndexer:
         ''' 
         Indexes news headline document into its corresponding ticker index in elasticsearch. 
         '''
-        # TODO: Get a more accurate price quote, based on the time of release of an article.
         
-        import datetime
 
         blacklist = ["Motley Fool", "Insider Monkey", "Investor's Business Daily"]
         stock = self.yf.Ticker(ticker)
@@ -81,15 +76,16 @@ class NewsHeadlineIndexer:
                 if word.lower() in news['title'].lower() and news['publisher'] not in blacklist:
 
                     epoch = news['providerPublishTime']          # The time the article was published, represented as a Unix timestamp.
-                    date = datetime.datetime.fromtimestamp(epoch).isoformat()
+                    date = datetime.datetime.fromtimestamp(epoch) 
 
                     logger.info(f"{date}, {news['title']}, {news['link']}, {news['publisher']}")
                     sentiment = find_sentiment(news['title'])
+                    # price = stock_quote()
 
                     # add to elasticsearch, assign unique uuid to prevent duplicates
                     es.index(index = index_name, id = news['uuid'], 
                         body = {
-                            'date': date, 
+                            'date': date.isoformat(), 
                             'title': news['title'],
                             'polarity': sentiment[1],
                             'sentiment': sentiment[0],
@@ -112,22 +108,35 @@ class NewsHeadlineIndexer:
 
         return index_name        
 
-    def stock_quote(ticker, timestamp): 
+    def stock_quote(self, ticker, date : datetime):           # TODO: Get a more accurate price quote, based on the time of release of an article.
+        stock = self.yf.Ticker(ticker)
+        df = stock.history(start = date, interval = '1m')
+
+        print(df[df.index.time == date.time()])               # filter for time of published article
 
         
         pass          
 
 
+class RedditIndexer: 
+    def __init__(self):
+        self.reddit = praw.Reddit(
+            client_id = config.client_id,
+            client_secret = config.client_secret,
+            user_agent= config.user_agent
+        )    
 
-# for submission in reddit.subreddit("stocks").top(time_filter="month"):
-#     for stock in whitelist:
-#         for word in whitelist[stock]: 
-#             if word in submission.title:
-#                 # reddit_log.info(f'{stock}: {submission.title}')
-#                 find_sentiment(submission.title)
-#                 break 
-    
-# news_headlines('NVDA')
+    def get_posts(subreddit):
+        for submission in reddit.subreddit("stocks").top(time_filter="month"):
+            for stock in whitelist:
+                for word in whitelist[stock]: 
+                    if word in submission.title:
+                        # reddit_log.info(f'{stock}: {submission.title}')
+                        find_sentiment(submission.title)
+                        break 
+                        #  index here
+                
+
 
 
 # Setup elasticsearch, uncomment if you are using the cloud version. 
@@ -165,5 +174,6 @@ if __name__ == '__main__':
     # populate elasticsearch indices with news documents 
     for stock in keywords: 
         news = NewsHeadlineIndexer()
-        news.news_headlines(stock)      # TODO: add summary of articles added to each index
+        # news.news_headlines(stock)      # TODO: add summary of articles added to each index
+
 
