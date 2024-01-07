@@ -3,6 +3,7 @@ import praw
 import logging
 import requests 
 import datetime
+import time
 
 logging.basicConfig(format = '')
 logger = logging.getLogger("yfinance")
@@ -67,23 +68,24 @@ class NewsHeadlineIndexer:
         stock = self.yf.Ticker(ticker)
         index_name = self.create_index(ticker)
         
-        logger.info(f"{ticker} news: " + str([news['title'] for news in stock.news]))
+        logger.info(f"\n{ticker} news: " + str([news['title'] for news in stock.news]))
 
         for news in stock.news: 
 
             # filter out low-quality articles 
             for word in keywords[ticker]: 
+                
                 if word.lower() in news['title'].lower() and news['publisher'] not in blacklist:
-
+                    logger.info('\n')
                     epoch = news['providerPublishTime']          # The time the article was published, represented as a Unix timestamp.
                     date = datetime.datetime.fromtimestamp(epoch) 
 
                     logger.info(f"{date}, {news['title']}, {news['link']}, {news['publisher']}")
                     sentiment = find_sentiment(news['title'])
-                    # price = stock_quote()
+                    stockPrice = self.stock_quote(stock, date)
 
                     # add to elasticsearch, assign unique uuid to prevent duplicates
-                    es.index(index = index_name, id = news['uuid'], 
+                    logger.info(es.index(index = index_name, id = news['uuid'], 
                         body = {
                             'date': date.isoformat(), 
                             'title': news['title'],
@@ -91,9 +93,11 @@ class NewsHeadlineIndexer:
                             'sentiment': sentiment[0],
                             'url': news['link'],
                             'publisher' : news['publisher'],
-                            'price': stock.info['currentPrice']     
-                        })
+                            'price': stockPrice     
+                        }))
                     
+                    time.sleep(0.5)
+
                     break 
 
 
@@ -108,14 +112,20 @@ class NewsHeadlineIndexer:
 
         return index_name        
 
-    def stock_quote(self, ticker, date : datetime):           # TODO: Get a more accurate price quote, based on the time of release of an article.
-        stock = self.yf.Ticker(ticker)
+    def stock_quote(self, stock, date : datetime):           
+        '''
+        TODO: Get a more accurate price quote, based on the time of release of an article.
+        '''
         df = stock.history(start = date, interval = '1m')
 
-        print(df[df.index.time == date.time()])               # filter for time of published article
+        if len(df) > 0: 
+            price_quote = df[df.index.time == date.time()].iloc[0]               # filter for time of published article
+            # print(type(price_quote))
+            return price_quote['Close']
 
+        else:   # return last close price if markets are closed
+            return stock.info['currentPrice']
         
-        pass          
 
 
 class RedditIndexer: 
@@ -155,7 +165,7 @@ es = Elasticsearch(hosts=[{'host': 'localhost', 'port': 9200, 'scheme': 'http'}]
 def viewIndex(index): 
     ''' 
     Views the indexes/documents housed in the elastic search cluster
-    or just visit http://localhost:9200/stock-tsla/_search?pretty in your browser
+    or just visit http://localhost:9200/stock-tsla/_search?size=10000&pretty in your browser
     '''
     elasticsearch_url = "http://%s:%s@localhost:9200%s/_search?pretty"  % (config.es_user, config.es_password, index)
     response = requests.get(elasticsearch_url) 
@@ -174,6 +184,6 @@ if __name__ == '__main__':
     # populate elasticsearch indices with news documents 
     for stock in keywords: 
         news = NewsHeadlineIndexer()
-        # news.news_headlines(stock)      # TODO: add summary of articles added to each index
+        news.news_headlines(stock)      # TODO: add summary of articles added to each index
 
 
