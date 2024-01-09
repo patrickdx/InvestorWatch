@@ -4,6 +4,7 @@ import logging
 import requests 
 import datetime
 import time
+import nltk
 
 logging.basicConfig(format = '')
 logger = logging.getLogger("yfinance")
@@ -12,14 +13,6 @@ logger.setLevel(logging.INFO)
 
 
 
-keywords = {
-    'AAPL': ['APPL', '$APPL', 'Apple', 'IPhone'], 
-    'NVDA': ['NVDA', '$NVDA', 'Nvidia', 'CUDA', 'Artifical Intelligence', 'Jensen Huang'],
-    'MSFT': ['MSFT', '$MSFT', 'Microsoft', 'Satya Nadella', 'OpenAI'],
-    'GOOGL': ['GOOGL', '$GOOG', '$GOOGL', 'Google', 'Alphabet', 'Gemini'],
-    'TSLA': ['TSLA', '$TSLA', 'Tesla', 'Cybertruck', 'Starlink'],
-    'AMZN': ['AMZN', '$AMZN', 'Amazon', 'Jeff Bezos', 'Prime'] 
-}
 
 
 
@@ -27,14 +20,16 @@ def find_sentiment(sentence):   # TODO: Improve accuracy of these models or use 
     '''
     Determines the emotional value of a given expression in natural language. 
     Uses textblob and Vader https://neptune.ai/blog/sentiment-analysis-python-textblob-vs-vader-vs-flair
+    Vader is optimized for social media data and can yield good results when used with data from twitter, facebook, etc, however more centric
+    around words and not overall context of the sentence.
     '''
 
     from textblob import TextBlob    
-    from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer        # Vader is optimized for social media data and can yield good results when used with data from twitter, facebook, etc.
+    from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer        
 
     textblob = TextBlob(sentence)
-    analyzer = SentimentIntensityAnalyzer()
-    vader = analyzer.polarity_scores(sentence)      
+    sid = SentimentIntensityAnalyzer()
+    vader = sid.polarity_scores(sentence)      
 
     # https://github.com/cjhutto/vaderSentiment?tab=readme-ov-file#about-the-scoring
     if vader['compound'] >= 0.05  and textblob.polarity >= 0: 
@@ -47,15 +42,33 @@ def find_sentiment(sentence):   # TODO: Improve accuracy of these models or use 
     
     avg_polarity = (vader['compound'] + textblob.polarity) / 2
     logger.info(f"{sentiment}, {vader['compound']} , {textblob.polarity}")
-    return sentiment, avg_polarity
+
+    return {'sentiment': sentiment, 'polarity': avg_polarity, 'subjectivity' : textblob.subjectivity}
     
 
 
 class NewsHeadlineIndexer: 
     import yfinance as yf 
     
+    
     def __init__(self):
-        source = 'https://finance.yahoo.com/quote/%s/news?p=%s'
+        self.source = 'https://finance.yahoo.com/quote/%s/news?p=%s'
+        self.filtered =0 
+        self.accepted = 0
+
+        # self.keywords = config.keywords 
+        self.keywords = {
+            'AAPL': ['APPL', '$APPL', 'Apple', 'IPhone'], 
+            'NVDA': ['NVDA', '$NVDA', 'Nvidia', 'CUDA', 'Artifical Intelligence', 'Jensen Huang'],
+            'MSFT': ['MSFT', '$MSFT', 'Microsoft', 'Satya Nadella', 'OpenAI'],
+            'GOOGL': ['GOOGL', '$GOOG', '$GOOGL', 'Google', 'Alphabet', 'Gemini'],
+            'TSLA': ['TSLA', '$TSLA', 'Tesla', 'Cybertruck', 'Starlink'],
+            'AMZN': ['AMZN', '$AMZN', 'Amazon', 'Jeff Bezos', 'Prime'] 
+        }
+
+        self.blacklist = ["Motley Fool", "Insider Monkey", "Investor's Business Daily"]
+
+
 
 
     def news_headlines(self, ticker):
@@ -64,7 +77,6 @@ class NewsHeadlineIndexer:
         '''
         
 
-        blacklist = ["Motley Fool", "Insider Monkey", "Investor's Business Daily"]
         stock = self.yf.Ticker(ticker)
         index_name = self.create_index(ticker)
         
@@ -72,16 +84,26 @@ class NewsHeadlineIndexer:
 
         for news in stock.news: 
 
-            # filter out low-quality articles 
-            for word in keywords[ticker]: 
-                
-                if word.lower() in news['title'].lower() and news['publisher'] not in blacklist:
+            # filter out low-quality articles, subject to change
+            tokens = nltk.word_tokenize(news['title'])
+            match_tokens = self.keywords[ticker]
+
+            for word in keywords[ticker]:                
+                if word.lower() in news['title'].lower() and news['publisher'] not in self.blacklist:
+
                     logger.info('\n')
                     epoch = news['providerPublishTime']          # The time the article was published, represented as a Unix timestamp.
                     date = datetime.datetime.fromtimestamp(epoch) 
 
                     logger.info(f"{date}, {news['title']}, {news['link']}, {news['publisher']}")
                     sentiment = find_sentiment(news['title'])
+
+                    if sentiment['subjectivity'] >= 0.75: 
+                        # Avoid: Magnificent Seven Stocks To Buy And Watch: Nvidia Stock Hits More Record Highs
+                        logger.info("Article is too subjective, discarding...")
+                        self.filtered += 1
+                        break
+                   
                     stockPrice = self.stock_quote(stock, date)
 
                     # add to elasticsearch, assign unique uuid to prevent duplicates
@@ -95,12 +117,13 @@ class NewsHeadlineIndexer:
                             'publisher' : news['publisher'],
                             'price': stockPrice     
                         }))
-                    
+
+                    self.accepted += 1
                     time.sleep(0.5)
-
                     break 
-
-
+                else:
+                    self.filtered += 1
+    
 
     def create_index(self, ticker):
         from elasticsearch.exceptions import BadRequestError
@@ -182,8 +205,9 @@ def clear_indexes():
 
 if __name__ == '__main__':      
     # populate elasticsearch indices with news documents 
-    for stock in keywords: 
-        news = NewsHeadlineIndexer()
+    news = NewsHeadlineIndexer()
+
+    for stock in news.keywords: 
         news.news_headlines(stock)      # TODO: add summary of articles added to each index
 
 
