@@ -12,14 +12,9 @@ logger.setLevel(logging.INFO)
 
 
 
-
-
-
-
 def find_sentiment(sentence):   # TODO: Improve accuracy of these models or use a self-made one
     '''
-    Determines the emotional value of a given expression in natural language. 
-    Uses textblob and Vader https://neptune.ai/blog/sentiment-analysis-python-textblob-vs-vader-vs-flair
+    Determines the emotional value of a given expression in natural language. Uses textblob and Vader.
     Vader is optimized for social media data and can yield good results when used with data from twitter, facebook, etc, however more centric
     around words and not overall context of the sentence.
     '''
@@ -85,10 +80,10 @@ class NewsHeadlineIndexer:
         for news in stock.news: 
 
             # filter out low-quality articles, subject to change
-            tokens = nltk.word_tokenize(news['title'])
+            # tokens = nltk.word_tokenize(news['title'])
             match_tokens = self.keywords[ticker]
 
-            for word in keywords[ticker]:                
+            for word in self.keywords[ticker]:                
                 if word.lower() in news['title'].lower() and news['publisher'] not in self.blacklist:
 
                     logger.info('\n')
@@ -111,8 +106,8 @@ class NewsHeadlineIndexer:
                         body = {
                             'date': date.isoformat(), 
                             'title': news['title'],
-                            'polarity': sentiment[1],
-                            'sentiment': sentiment[0],
+                            'polarity': sentiment['polarity'],
+                            'sentiment': sentiment['sentiment'],
                             'url': news['link'],
                             'publisher' : news['publisher'],
                             'price': stockPrice     
@@ -139,15 +134,17 @@ class NewsHeadlineIndexer:
         '''
         TODO: Get a more accurate price quote, based on the time of release of an article.
         '''
+        date = date.replace(second = 0)         # strip leading seconds 
         df = stock.history(start = date, interval = '1m')
 
         if len(df) > 0: 
-            price_quote = df[df.index.time == date.time()].iloc[0]               # filter for time of published article
+            price_quote = df[df.index.time == date.time()]        # filter for time of published article
+            print(date, price_quote, price_quote['Close'])
             # print(type(price_quote))
-            return price_quote['Close']
+            return round(price_quote['Close'], 2)
 
         else:   # return last close price if markets are closed
-            return stock.info['currentPrice']
+            return round(stock.info['currentPrice'], 2)
         
 
 
