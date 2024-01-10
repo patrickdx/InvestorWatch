@@ -138,7 +138,7 @@ class NewsHeadlineIndexer:
         df = stock.history(start = date, interval = '1m')
 
         if len(df) > 0: 
-            price_quote = df[df.index.time == date.time()]        # filter for time of published article
+            price_quote = df[df.index.time == date.time()].iloc[0]        # filter for time of published article
             print(date, price_quote, price_quote['Close'])
             # print(type(price_quote))
             return round(price_quote['Close'], 2)
