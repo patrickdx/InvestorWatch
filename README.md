@@ -18,7 +18,7 @@ Example: As of __1/15/2024__ there is a lot of negative news surrounding Boeing 
 - PRAW (Python Reddit API)
 - yFinance (Yahoo Finance API) 
 - ElasticSearch
-- NLTK
+- NLTK and TextBlob
 - pandas
 - Tensorflow
 - Matplotlib

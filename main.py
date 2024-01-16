@@ -81,6 +81,7 @@ class NewsHeadlineIndexer:
 
             # filter out low-quality articles, subject to change
             # tokens = nltk.word_tokenize(news['title'])
+            
             match_tokens = self.keywords[ticker]
 
             for word in self.keywords[ticker]:                
@@ -199,6 +200,21 @@ def clear_indexes():
         es.indices.delete(index=index_name, ignore=[400, 404])
 
     logger.info("All indices deleted.")
+
+def remove_stopwords(text):
+    '''
+    Removes extremely common tokens that do not contribute much to the sentiment score.
+    '''
+    from nltk.corpus import stopwords 
+    from nltk.tokenize import word_tokenize 
+
+    tokens = word_tokenize(text) 
+    stop_words = set(stopwords.words('english'))
+
+    
+    clean = [word for word in tokens if word not in stop_words]
+    return " ".join(clean) 
+
 
 if __name__ == '__main__':      
     # populate elasticsearch indices with news documents 
