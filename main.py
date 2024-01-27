@@ -201,6 +201,19 @@ def stock_quote(self, stock : Ticker, date : datetime = None):
     else:   # return last close price if markets are closed
         return round(stock.info['currentPrice'], 2)
         
+def remove_stopwords(text):
+    '''
+    Removes extremely common tokens that do not contribute much to the sentiment score.
+    '''
+    from nltk.corpus import stopwords 
+    from nltk.tokenize import word_tokenize 
+
+    tokens = word_tokenize(text) 
+    stop_words = set(stopwords.words('english'))
+
+    
+    clean = [word for word in tokens if word not in stop_words]
+    return " ".join(clean) 
 
 
 if __name__ == '__main__':      
@@ -220,6 +233,7 @@ if __name__ == '__main__':
 
     headlines = NewsHeadlineIndexer()
     reddits = RedditIndexer() 
+
     for t in headlines.stocks:
         headlines.news_headlines(t)          # TODO: add logging summary of articles added to each index
-
+        reddits.get_posts(t)
