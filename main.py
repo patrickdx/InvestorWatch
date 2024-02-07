@@ -5,13 +5,17 @@ import requests
 import datetime
 import time
 import nltk
+import yfinance as yf 
+from elasticsearch import Elasticsearch
 
-
-def find_sentiment(sentence):   # TODO: Improve accuracy of these models or use a self-made one
+def find_sentiment(sentence):   
     '''
-    Determines the emotional value of a given expression in natural language. Uses textblob and Vader.
+    Determines the emotional value of a given expression in natural language. 
     Vader is optimized for social media data and can yield good results when used with data from twitter, facebook, etc, however more centric
     around words and not overall context of the sentence.
+    1. TextBlob - 55%
+    2. Vader - 56%
+    3. ML Model - 78%
     '''
 
     from textblob import TextBlob    
@@ -38,8 +42,6 @@ def find_sentiment(sentence):   # TODO: Improve accuracy of these models or use 
 
 
 class NewsHeadlineIndexer: 
-    import yfinance as yf 
-    
     
     def __init__(self):
         self.source = 'https://finance.yahoo.com/quote/%s/news?p=%s'
@@ -54,17 +56,11 @@ class NewsHeadlineIndexer:
         ''' 
         Indexes news headline documents using yfinance into its corresponding ticker index in elasticsearch. 
         '''
-        stock = self.yf.Ticker(ticker)
-        index_name = self.create_index(ticker)
+        stock = yf.Ticker(ticker)
         
         yf_logger.info(f"\n{ticker} news: " + str([news['title'] for news in stock.news]))
 
         for news in stock.news: 
-
-            # filter out low-quality articles, subject to change
-            # tokens = nltk.word_tokenize(news['title'])
-            match_tokens = self.stocks[ticker]
-
             for word in self.stocks[ticker]:                
                 if word.lower() in news['title'].lower() and news['publisher'] not in self.blacklist:
 
@@ -81,10 +77,8 @@ class NewsHeadlineIndexer:
                         self.filtered += 1
                         break
                    
-                    stockPrice = self.stock_quote(stock, date)
-
                     # add to elasticsearch, assign unique uuid to prevent duplicates
-                    yf_logger.info(es.index(index = index_name, id = news['uuid'], 
+                    yf_logger.info(es.index(index = 'stock-%s' % stock.lower(), id = news['uuid'], 
                         body = {
                             'date': date.isoformat(), 
                             'title': news['title'],
@@ -92,7 +86,8 @@ class NewsHeadlineIndexer:
                             'sentiment': sentiment['sentiment'],
                             'url': news['link'],
                             'publisher' : news['publisher'],
-                            'price': stockPrice     
+                            'price': round(stock.info['currentPrice'],2),
+                            'ticker': ticker
                         }))
 
                     self.accepted += 1
@@ -100,69 +95,6 @@ class NewsHeadlineIndexer:
                     break 
                 else:
                     self.filtered += 1
-    
-
-    def create_index(self, ticker):
-        from elasticsearch.exceptions import BadRequestError
-        index_name = 'stock-%s' % ticker.lower()
-        try: 
-            es.indices.create(index= index_name, body=config.mapping)    
-        except BadRequestError:
-            yf_logger.debug(f"index {index_name} already exists")
-
-        return index_name        
-
-
-
-class RedditIndexer: 
-    def __init__(self):
-        self.reddit = praw.Reddit(
-            client_id = config.client_id,
-            client_secret = config.client_secret,
-            user_agent= config.user_agent
-        )    
-        self.stocks = config.tickers
-
-    def get_posts(self, subreddit):
-        reddit = self.reddit 
-        for submission in reddit.subreddit(subreddit).top(time_filter="month"):
-            for ticker, keywords in self.stocks.items():
-                for word in keywords:  
-                    if word in submission.title:    #  index here
-
-                        reddit_logger.info(f'{ticker}: {submission.title}')
-                        sentiment = find_sentiment(submission.title)
-                        index_name = self.create_index(ticker)
-                        date = datetime.datetime.fromtimestamp(submission.created_utc)          # created_utc is unix timestamp 
-
-                        # add to elasticsearch, assign unique uuid to prevent duplicates
-                        yf_logger.info(es.index(index = index_name, id = submission.id, 
-                            body = {
-                                'date': date.isoformat(), 
-                                'title': submission.title,
-                                'polarity': sentiment['polarity'],
-                                'sentiment': sentiment['sentiment'],
-                                'url': submission.url, 
-                                'publisher' : submission.author.name,
-                                'price': stock_quote(ticker)      
-                            }))
-
-                        self.accepted += 1
-                        time.sleep(0.5)
-                        break 
-
-
-# Setup elasticsearch, uncomment if you are using the cloud version. 
-
-# es = Elasticsearch(     # for cloud subscription
-#     cloud_id = config.cloud_id,
-#     basic_auth =('elastic', config.password)
-# )
-
-from elasticsearch import Elasticsearch
-es = Elasticsearch(hosts=[{'host': 'localhost', 'port': 9200, 'scheme': 'http'}],
-                basic_auth =(config.es_user, config.es_password))
-
 
 
 def viewIndex(index): 
@@ -183,12 +115,26 @@ def clear_indexes():
 
     logger.info("All indices deleted.")
 
+def initalize_indexes(ticker):
+    '''Initalizes the indexes in elasticsearch if there is a new elasticsearch instance.'''
 
-def stock_quote(self, stock : Ticker, date : datetime = None):           
+    from elasticsearch.exceptions import BadRequestError
+    index_name = 'stock-%s' % ticker.lower()
+    try: 
+        es.indices.create(index= index_name, body=config.mapping)    
+    except BadRequestError:
+        yf_logger.debug(f"index {index_name} already exists")
+
+    return index_name        
+
+
+def stock_quote(ticker_name, date = None):           
     '''
     Gets a more accurate price quote, based on the time of release of an article.
     '''
-    
+    t = yf.Ticker(ticker_name)
+    return round(t.info['currentPrice'], 2)
+
     if date: date = date.replace(second = 0)         # strip leading seconds 
     df = stock.history(start = date, interval = '1m')
 
@@ -198,8 +144,8 @@ def stock_quote(self, stock : Ticker, date : datetime = None):
         # print(type(price_quote))
         return round(price_quote['Close'], 2)
 
-    else:   # return last close price if markets are closed
-        return round(stock.info['currentPrice'], 2)
+    # else:    # return last close price if markets are closed
+        
         
 def remove_stopwords(text):
     '''
@@ -211,14 +157,49 @@ def remove_stopwords(text):
     tokens = word_tokenize(text) 
     stop_words = set(stopwords.words('english'))
 
-    
     clean = [word for word in tokens if word not in stop_words]
     return " ".join(clean) 
 
 
+class RedditIndexer: 
+    def __init__(self):
+        self.reddit = praw.Reddit(
+            client_id = config.client_id,
+            client_secret = config.client_secret,
+            user_agent= config.user_agent
+        )    
+        self.stocks = config.tickers
+
+    def index_posts(self, subreddit='stocks'):
+        subreddit = 'stocks'
+        reddit = self.reddit 
+        for submission in reddit.subreddit(subreddit).hot(limit = 25):
+            for ticker, keywords in self.stocks.items():
+                for word in keywords:  
+                    if word in submission.title:   
+
+                        reddit_logger.info(f'{ticker}: {submission.title}')
+                        sentiment = find_sentiment(submission.title)
+                        date = datetime.datetime.fromtimestamp(submission.created_utc)          # created_utc is unix timestamp 
+
+                        # add to elasticsearch, assign unique uuid to prevent duplicates
+                        reddit_logger.info(es.index(index = 'stock-%s' % ticker.lower(), id = submission.id, 
+                            body = {
+                                'date': date.isoformat(), 
+                                'title': submission.title,
+                                'polarity': sentiment['polarity'],
+                                'sentiment': sentiment['sentiment'],
+                                'url': submission.url, 
+                                'publisher' : submission.author.name,
+                                'price': stock_quote(ticker)      
+                            }))
+
+                        time.sleep(0.5)
+                        break 
+
+
+
 if __name__ == '__main__':      
-    # populate elasticsearch indices with news documents 
-    
 
     # setup logging 
     logging.basicConfig(format = '') 
@@ -231,9 +212,25 @@ if __name__ == '__main__':
     reddit_logger.setLevel(logging.INFO)
     
 
+    
+    # Setup elasticsearch, uncomment if you are using the cloud version. 
+    es = Elasticsearch(     
+        cloud_id = config.cloud_id,
+        api_key= config.api_key
+    )
+    print(es.info())
+
+    # local host version
+    # es = Elasticsearch(hosts=[{'host': 'localhost', 'port': 9200, 'scheme': 'http'}])
+               
+
+    for ticker in config.tickers:                
+        initalize_indexes(ticker)
+
+    # populate elasticsearch indices with news documents 
     headlines = NewsHeadlineIndexer()
     reddits = RedditIndexer() 
 
     for t in headlines.stocks:
         headlines.news_headlines(t)          # TODO: add logging summary of articles added to each index
-        reddits.get_posts(t)
+    
