@@ -20,10 +20,6 @@ Example: As of __1/15/2024__ there is a lot of negative news surrounding Boeing 
 - ElasticSearch
 - NLTK (for tokenization and filtering) and TextBlob
 - pandas
-- Tensorflow
 - Matplotlib
 
 ---
-
-![image](https://github.com/patrickdx/InvestorWatch/assets/59300081/22a6d43a-a73e-4d6b-b1a2-bed3220298e7)
-
