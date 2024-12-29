@@ -162,4 +162,3 @@ cython_debug/
 config.py
 constants.py
 ./model
-/stocks
