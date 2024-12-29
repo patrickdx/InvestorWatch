@@ -12,7 +12,9 @@ This project scrapes news headlines (Yahoo Finance) and Reddit to get social med
 Results are then indexed in Elasticsearch for quick lookup of the market sentiment for certain events, and to visualize a stock's price, along with its sentiment.
 
 Example: As of __1/15/2024__ there is a lot of negative news surrounding Boeing (NYSE: BA) following an incident due to a lack of QC. Market sentiment is bearish, and the past month the stock has sold off -17%. Conversely, its rival Airbus SE saw a uptick of +6.4%
+
 --->
+
 ---
 
 #### Libraries used:
