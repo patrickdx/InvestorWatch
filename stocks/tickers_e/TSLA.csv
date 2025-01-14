@@ -13,10 +13,10 @@ Date,Title,Link,Source,% Change,hits
 2024-12-10 11:50:00,"Tesla restarts search for New Delhi showroom with India's DLF, sources say",https://finance.yahoo.com/news/tesla-restarts-search-delhi-showroom-165012940.html,Reuters,2.87,
 2024-12-10 19:49:00,GM Calls It Quits on Mary Barras $50 Billion Robotaxi Dream,https://finance.yahoo.com/news/gm-calls-quits-mary-barra-004909597.html,Bloomberg,2.87,
 2024-12-10 22:30:00,"Tesla sells 21,900 EVs in China in first week of Dec, the highest in Q4",https://finance.yahoo.com/news/tesla-sells-21-900-evs-033040530.html,Reuters,2.87,
-2024-12-11 09:40:00,GM Calls It Quits on Mary Barras $50 Billion Robotaxi Dream,https://finance.yahoo.com/news/gm-calls-quits-mary-barra-004909597.html,Bloomberg,5.93,2.0
-2024-12-11 12:19:00,Tesla shares jump to record high,https://finance.yahoo.com/news/tesla-shares-jump-record-high-171931266.html,Reuters,5.93,5.0
-2024-12-11 16:12:00,Tesla Shares Jump to Record Amid $515 Billion Rally in Six Weeks,https://finance.yahoo.com/news/tesla-shares-jump-record-amid-165559160.html,Bloomberg,5.93,8.0
-2024-12-11 17:11:00,"Elon Musks Net Worth Tops $400 Billion, a Historic First",https://finance.yahoo.com/news/elon-musk-net-worth-tops-164108960.html,Bloomberg,5.93,0.0
+2024-12-11 09:40:00,GM Calls It Quits on Mary Barras $50 Billion Robotaxi Dream,https://finance.yahoo.com/news/gm-calls-quits-mary-barra-004909597.html,Bloomberg,5.93,
+2024-12-11 12:19:00,Tesla shares jump to record high,https://finance.yahoo.com/news/tesla-shares-jump-record-high-171931266.html,Reuters,5.93,
+2024-12-11 16:12:00,Tesla Shares Jump to Record Amid $515 Billion Rally in Six Weeks,https://finance.yahoo.com/news/tesla-shares-jump-record-amid-165559160.html,Bloomberg,5.93,
+2024-12-11 17:11:00,"Elon Musks Net Worth Tops $400 Billion, a Historic First",https://finance.yahoo.com/news/elon-musk-net-worth-tops-164108960.html,Bloomberg,5.93,
 2024-12-12 09:36:00,"Elon Musk's net worth tops $400 billion, Forbes billionaires list shows",https://finance.yahoo.com/news/elon-musks-net-worth-tops-143636735.html,Reuters,-1.57,
 2024-12-12 21:50:00,Musk Ups SEC Feud by Posting Letter Disclosing Neuralink Probe,https://finance.yahoo.com/news/musk-ups-sec-feud-posting-025048855.html,Bloomberg,-1.57,
 2024-12-13 02:59:00,Tesla launches 'Actually Smart Summon' feature in China,https://finance.yahoo.com/news/tesla-launches-actually-smart-summon-075955815.html,Reuters,4.34,
@@ -26,11 +26,11 @@ Date,Title,Link,Source,% Change,hits
 2024-12-13 14:11:00,Fee War Kicks Off for One of Wall Streets Hottest ETF Trades,https://finance.yahoo.com/news/fee-war-kicks-off-one-191104618.html,Bloomberg,4.34,
 2024-12-13 15:43:00,Musk Euphoria Benefits Funds,https://finance.yahoo.com/video/musk-euphoria-benefits-funds-204329682.html,Bloomberg,4.34,
 2024-12-13 17:06:00,Judge clears way for Musk appeal to try to restore $56 billion Tesla pay,https://finance.yahoo.com/news/judge-clears-way-musk-appeal-220605685.html,Reuters,4.34,
-2024-12-16 06:07:00,"Exclusive-Trump transition team plans sweeping rollback of Biden EV, emissions policies",https://finance.yahoo.com/m/d85b6f9c-9173-378e-9033-f7555925badc/exclusive-trump-transition.html,Reuters,6.14,6410.0
-2024-12-16 18:25:00,China resident who stole Tesla trade secrets gets 2-year US sentence,https://finance.yahoo.com/news/china-resident-stole-tesla-trade-232546820.html,Reuters,6.14,8920.0
+2024-12-16 06:07:00,"Exclusive-Trump transition team plans sweeping rollback of Biden EV, emissions policies",https://finance.yahoo.com/m/d85b6f9c-9173-378e-9033-f7555925badc/exclusive-trump-transition.html,Reuters,6.14,2220.0
+2024-12-16 18:25:00,China resident who stole Tesla trade secrets gets 2-year US sentence,https://finance.yahoo.com/news/china-resident-stole-tesla-trade-232546820.html,Reuters,6.14,1840.0
 2024-12-17 11:36:00,Tesla castigates German union over attempt to oust works council head,https://finance.yahoo.com/news/tesla-castigates-german-union-over-163642168.html,Reuters,3.64,
 2024-12-17 21:13:00,"Honda, Nissan move to closer tie-up as competition intensifies, source says",https://finance.yahoo.com/news/honda-nissan-move-closer-tie-021342606.html,Reuters,3.64,
-2024-12-18 02:15:00,"Tesla's China factory head Song Gang leaves company, letter to staff shows",https://finance.yahoo.com/news/teslas-china-factory-head-song-071543917.html,Reuters,-8.28,3850.0
+2024-12-18 02:15:00,"Tesla's China factory head Song Gang leaves company, letter to staff shows",https://finance.yahoo.com/news/teslas-china-factory-head-song-071543917.html,Reuters,-8.28,617.0
 2024-12-19 07:29:00,"Tesla in talks with city of Austin over self-driving technology, Bloomberg News reports",https://finance.yahoo.com/news/tesla-talks-city-austin-over-122937541.html,Reuters,-0.9,
 2024-12-20 05:42:00,"Tesla recalls nearly 700,000 vehicles in US over tire pressure monitoring system issue",https://finance.yahoo.com/news/tesla-recalls-nearly-700-000-104233455.html,Reuters,-3.46,
 2024-12-20 06:02:00,Tesla's 2024 deliveries growth might hinge on Musk's unorthodox Cybertruck,https://finance.yahoo.com/news/teslas-2024-deliveries-growth-might-110237921.html,Reuters,-3.46,
@@ -38,3 +38,23 @@ Date,Title,Link,Source,% Change,hits
 2024-12-21 08:00:00,Musks Trump Trade Makes Tesla a Winner With $570 Billion Rally,https://finance.yahoo.com/news/musk-trump-trade-makes-tesla-130007582.html,Bloomberg,,
 2024-12-23 08:41:00,Trump Efficiency Co-Chief Elon Musk Calls Fed Overstaffed,https://finance.yahoo.com/news/elon-musk-makes-overstaffed-fed-090844527.html,Bloomberg,2.27,
 2024-12-23 14:08:00,"Tesla, Meta and Broadcom Weights Shrink in Nasdaq 100 Rebalance",https://finance.yahoo.com/news/tesla-meta-broadcom-weights-shrink-190831294.html,Bloomberg,2.27,
+2024-12-27 06:05:00,Ark's Cathie Wood calls for tax clarity as she rides 'Trump bump',https://finance.yahoo.com/news/arks-cathie-wood-calls-tax-110525853.html,Reuters,-4.95,
+2024-12-30 23:20:00,Tesla's Shanghai energy storage gigafactory begins trial production,https://finance.yahoo.com/news/teslas-shanghai-energy-storage-gigafactory-042020395.html,Reuters,-3.3,
+2024-12-31 04:32:00,"Tesla to fix software for 77,650 China-made vehicles, says market regulator",https://finance.yahoo.com/news/tesla-fix-software-77-650-093202089.html,Reuters,-3.25,
+2024-12-31 07:50:00,Tesla stock surge runs up against a potential annual sales drop,https://finance.yahoo.com/news/tesla-stock-surge-runs-against-125059167.html,Bloomberg,-3.25,
+2025-01-01 16:12:00,"Tesla Cybertruck fire in Las Vegas leaves one dead, others injured",https://finance.yahoo.com/m/09317afb-70aa-325d-8eff-fbf5fd1d2008/tesla-cybertruck-fire-in-las.html,Reuters,,
+2025-01-01 16:12:00,"Tesla Cybertruck explodes outside Trump Las Vegas hotel, killing driver",https://finance.yahoo.com/m/09317afb-70aa-325d-8eff-fbf5fd1d2008/tesla-cybertruck-explodes.html,Reuters,,
+2025-01-01 16:12:00,Musk says Tesla investigating Cybertruck fire in Las Vegas,https://finance.yahoo.com/news/musk-says-tesla-investigating-cybertruck-211228819.html,Reuters,,
+2025-01-02 06:03:00,"As Musk gains influence, questions hover over US probes into his empire",https://finance.yahoo.com/news/musk-gains-influence-questions-hover-110300778.html,Reuters,-6.08,34100.0
+2025-01-02 09:07:00,Tesla annual deliveries fall for first time as competition hurts demand,https://finance.yahoo.com/news/teslas-posts-first-fall-annual-140745827.html,Reuters,-6.08,9690.0
+2025-01-02 10:53:00,Teslas Annual EV Sales Drop for First Time in Over a Decade,https://finance.yahoo.com/news/tesla-annual-ev-sales-decline-140709554.html,Bloomberg,-6.08,40.0
+2025-01-02 12:07:00,"Musk donated $108 million in Tesla shares to unnamed charities, filing shows",https://finance.yahoo.com/news/musk-donated-108-million-tesla-170729369.html,Reuters,-6.08,4510.0
+2025-01-02 21:49:00,"Tesla's China sales rise to record high in 2024, bucking global decline",https://finance.yahoo.com/news/teslas-china-sales-rise-record-024923151.html,Reuters,-6.08,9400.0
+2025-01-03 04:52:00,Teslas Annual EV Sales Drop for First Time in Over a Decade,https://finance.yahoo.com/news/tesla-annual-ev-sales-decline-140709554.html,Bloomberg,8.22,40.0
+2025-01-03 06:07:00,"2024 US new-car sales rise to five-year high, but Tesla and Stellantis lag",https://finance.yahoo.com/news/consumers-boosted-2024-u-car-110704536.html,Reuters,8.22,328.0
+2025-01-06 23:16:00,Tesla supplier Panasonic Energy says cutting China supply for US business a 'No.1 objective',https://finance.yahoo.com/news/tesla-supplier-panasonic-energy-cutting-041654348.html,Reuters,0.15,
+2025-01-07 06:00:00,Musks Massive Tesla Lithium Plant Hunts for Water in Drought-Hit Texas,https://finance.yahoo.com/news/musk-massive-tesla-lithium-plant-110009148.html,Bloomberg,-4.06,
+2025-01-07 06:55:00,"Automakers to pool CO2 emissions with Tesla, Mercedes to comply with EU 2025 rules",https://finance.yahoo.com/news/stellantis-toyota-ford-mazda-subaru-115510249.html,Reuters,-4.06,
+2025-01-07 08:52:00,Tesla seeks Sweden court order in protracted labour union conflict,https://finance.yahoo.com/news/tesla-seeks-sweden-court-order-135255158.html,Reuters,-4.06,
+2025-01-07 18:00:00,How Washington's tag on China's CATL could affect Tesla,https://finance.yahoo.com/news/washingtons-tag-chinas-catl-could-230019404.html,Reuters,-4.06,
+2025-01-07 18:32:00,US Blacklist of Chinas Tech Giants Risks Faster Decoupling,https://finance.yahoo.com/m/28a2bf67-ec2b-3751-b282-927f893d8638/us-blacklist-of-china%E2%80%99s-tech.html,Bloomberg,-4.06,

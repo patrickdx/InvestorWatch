@@ -15,6 +15,26 @@ if not os.path.exists(PATH): os.makedirs(PATH)
 
 df = pd.read_csv('stocks/stocks.csv')
 
+def update_stocklist():
+    # Get list of stocks that meet market cap criteria. Since sp500 is self-cleansing, companies get aquired / delisted frequently.
+
+    market_cap = {
+            'Mega' : 'Mega ($200bln and more)',
+            'Large' : '+Large (over $10bln)',
+            'Mid' : '+Mid (over $2bln)',
+    }
+
+    foverview = Overview()
+    filters_dict = {'Market Cap.': market_cap['Large'], 'Country': 'USA'}
+
+    foverview.set_filter(filters_dict=filters_dict)
+    df = foverview.screener_view() 
+    df['Market Cap (billions)'] = df['Market Cap'] / 1e9
+    df.drop(columns = ['P/E', 'Change', 'Market Cap', 'Volume'], inplace = True)
+
+    df.to_csv('stocks/stocks.csv', index = False)                               # sink all marketcap+ stocks
+
+
 def get_news(df : pd.Series):       # sinks new news sources to csv files
     try:
             
@@ -36,12 +56,10 @@ def get_news(df : pd.Series):       # sinks new news sources to csv files
         print(f'found {len(news_df)} new sources to {file} ...')   
 
     except Exception as e:
-        print("Could not find news!", e)
+        print(e)
 
-    
-
+update_stocklist()    
 df.apply(get_news, axis = 1)            # apply get_news() on every row
 
 
-# get_news(df.iloc[465])
 
