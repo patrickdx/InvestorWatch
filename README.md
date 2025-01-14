@@ -7,7 +7,7 @@ Utilizes sentiment analysis with NLP libraries to determine market sentiment abo
 
 ---
 
-![](newplot.png)
+![](plot1.jpg)
 
 ---
 
