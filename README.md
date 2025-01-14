@@ -5,6 +5,12 @@ Utilizes sentiment analysis with NLP libraries to determine market sentiment abo
 - If investors expect upward price movement in the stock market, the sentiment is said to be **bullish**.
 - On the contrary, if the market sentiment is **bearish**, most investors expect downward price movement.
 
+---
+
+![](newplot.png)
+
+---
+
 
 ### How it works
 This project scrapes news headlines (Yahoo Finance) and Reddit to get social media reactions about a certain stock, and then uses NLP to analyze them to determine the sentiment. 
@@ -18,10 +24,10 @@ Example: As of __1/15/2024__ there is a lot of negative news surrounding Boeing 
 ---
 
 #### Libraries used:
-- PRAW (Python Reddit API)
 - yFinance (Yahoo Finance API) 
 - NLTK (for tokenization and filtering) and TextBlob
 - pandas
-- Matplotlib
-
+- Matplotlib/plotly
+  
 ---
+
