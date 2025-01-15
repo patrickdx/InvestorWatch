@@ -8,11 +8,6 @@ Correlates price movement with news articles from high quality publishers (Bloom
 
 ![](plot.jpg)
 
----
-
-#### Future plans
-- visualization in tableau
-
 
 ---
 
@@ -24,4 +19,8 @@ Correlates price movement with news articles from high quality publishers (Bloom
 - finvizfinance
   
 ---
+
+
+#### Future plans
+- visualization in tableau
 
