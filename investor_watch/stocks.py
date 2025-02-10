@@ -1,16 +1,17 @@
 
-import sys
+import yfinance as yf
 import os 
 from finvizfinance.news import News
 from finvizfinance.screener.overview import Overview
 from finvizfinance.quote import finvizfinance
 import pandas as pd 
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
+import requests 
+from investor_watch.constants import TICKER_PATH
 
-PATH = 'stocks/tickers'
 
-if not os.path.exists(PATH): os.makedirs(PATH)
+
 
 
 stock_list = pd.read_csv('stocks/stocks.csv')
@@ -35,7 +36,7 @@ def get_news(df : pd.Series):       # sinks new news sources to csv files
         news_df = finvizfinance(df['Ticker']).ticker_news()
         news_df = news_df[news_df['Source'].isin(whitelist)]              # whitelist
 
-        file = f"{STOCK_PATH}/{df['Ticker']}.csv"
+        file = f"{TICKER_PATH}/{df['Ticker']}.csv"
         last_modified = datetime.fromtimestamp(os.path.getmtime(file))
         news_df = news_df[(news_df['Date'] >= last_modified)].sort_values('Date')       # filter new news inbetween modified date and today
 
@@ -50,6 +51,6 @@ def get_news(df : pd.Series):       # sinks new news sources to csv files
         print(e)
 
 
-df.apply(get_news, axis = 1)            # apply get_news() on every row
+stock_list.apply(get_news, axis = 1)            # apply get_news() on every row
 
 
