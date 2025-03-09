@@ -11,16 +11,4 @@ Correlates price movement with news articles from high quality publishers (Bloom
 
 ---
 
-#### Libraries used:
-- yFinance (Yahoo Finance API) 
-- NLTK (for tokenization and filtering) and TextBlob
-- pandas
-- Matplotlib/plotly
-- finvizfinance
-  
----
-
-
-#### Future plans
-- visualization in tableau
 
