@@ -1,20 +1,14 @@
-
-import yfinance as yf
 import os 
-from finvizfinance.news import News
 from finvizfinance.screener.overview import Overview
 from finvizfinance.quote import finvizfinance
 import pandas as pd 
-from datetime import datetime, timedelta
-import time
-import requests 
-from investor_watch.constants import TICKER_PATH
+from datetime import datetime
+import time 
+from investor_watch.constants import TICKER_PATH, STOCK_LIST_PATH
 
 
+stock_list = pd.read_csv(STOCK_LIST_PATH)
 
-
-
-stock_list = pd.read_csv('stocks/stocks.csv')
 
 def update_stocklist():   # Update the list of stocks that meet market cap criteria.
     global stock_list
@@ -26,7 +20,7 @@ def update_stocklist():   # Update the list of stocks that meet market cap crite
     df.drop(columns = ['P/E', 'Change', 'Market Cap', 'Volume'], inplace = True)
 
     stock_list = pd.concat([df,stock_list]).drop_duplicates(subset=['Ticker'])        # dropped duplicates will be the older ones (in stock_list)
-    stock_list.to_csv('../stocks/stocks.csv', index = False) 
+    stock_list.to_csv(STOCK_LIST_PATH, index = False) 
 
 
 def get_news(df : pd.Series):       # sinks new news sources to csv files
