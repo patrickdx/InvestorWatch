@@ -52,7 +52,6 @@ class Driver:
     def write_articles(self, articles_df):
         """Add new articles to the articles table."""
         if articles_df.empty:
-            print("No articles to write")
             return 0
             
         required_columns = ['Ticker', 'Date', 'Title', 'Link', 'Source']
@@ -87,7 +86,7 @@ class Driver:
                     continue
                     
             self.conn.commit()
-            print(f"Added {articles_added} new articles to database")
+            
             return articles_added
             
         except Exception as e:
@@ -98,7 +97,6 @@ class Driver:
     def write_stocks(self, stocks_df):
         """Add new stocks to the stocks table."""
         if stocks_df.empty:
-            print("No stocks to write")
             return 0
             
         required_columns = ['Ticker', 'Company']
@@ -163,13 +161,12 @@ class Driver:
             
             self.cur.execute(query, (ticker,))
             results = self.cur.fetchall()
-            
+
             if not results:
-                print(f"No articles found for {ticker}")
                 return pd.DataFrame()
                 
             df = pd.DataFrame(results, columns=['Ticker', 'Date', 'Title', 'Link', 'Source'])
-            print(f"Retrieved {len(df)} articles for {ticker}")
+            # print(f"Retrieved {len(df)} articles for {ticker}")
             return df
             
         except Exception as e:
@@ -193,7 +190,7 @@ class Driver:
                 return pd.DataFrame()
                 
             df = pd.DataFrame(results, columns=['Ticker', 'Company', 'Sector', 'Industry', 'Country', 'Market Cap'])
-            print(f"Retrieved {len(df)} stocks from database")
+            # print(f"Retrieved {len(df)} stocks from database")
             return df
             
         except Exception as e:
@@ -210,4 +207,3 @@ class Driver:
             print("Database connection closed")
         except Exception as e:
             print(f"Error closing database connection: {str(e)}")
-
