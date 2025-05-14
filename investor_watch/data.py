@@ -62,5 +62,7 @@ def main():
         db.write_articles(news_df)
 
 
+
+# the entry point of the script
 if __name__ == '__main__':
     main()

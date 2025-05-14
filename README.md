@@ -11,4 +11,6 @@ Correlates price movement with news articles from high quality publishers (Bloom
 
 ---
 
+Still a work in progress, continued development on other branches
+
 
