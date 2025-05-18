@@ -1,14 +1,23 @@
 ## InvestorWatch
 
-Correlates price movement with news articles from high quality publishers (Bloomberg, Reuters) in attempt to find 'catalysts' or reasons for drastic price changes in a stock. News from stocks in the S&P 500 are mined + enriched daily. 
-
-- Can assist retail investors in 'due diligence'; generating a news timeline for a specific stock one would be interested about, or just staying informed about recent events.
-
----
-
-![](plot.jpg)
+Tired of keeping up with the market? This is a pipeline that attempts to log all major equity/macroeconomic news from trusted sources, forming an market event timeline. 
+- Never miss an major news catalyst and keep up-to-date with your favourite stocks.
+- search engines have recency bias making it difficult to keep track of developing events.
 
 
 ---
+
+### Demo 
+
+![](/assets/demo.gif)
+
+
+---
+
+### Technologies Used
+- yfinance
+- MongoDB 
+- Streamlit
+- some cloud provider
 
 
