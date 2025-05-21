@@ -17,10 +17,7 @@ from collections import Counter
 
 
 
-
 st.title("📈 Weekly Stock News :blue[Dashboard]")
-driver = Driver(st.secrets['username'], st.secrets['password'])
-
 
 # Weekly date selector
 today = datetime.now(timezone.utc)
@@ -30,16 +27,26 @@ week_ranges = [f"{w.strftime('%Y-%m-%d')} to {(w + timedelta(days=6)).strftime('
 selected_week = st.selectbox("Select a week:", week_ranges)
 
 
-# Date filtering
+# Get the start and end dates for the selected week
 start_date = datetime.strptime(selected_week.split(" to ")[0], "%Y-%m-%d")
 end_date = start_date + timedelta(days=6)
 query = {"date": {"$gte": start_date, "$lte": end_date}}
 
-# Fetch data
-data = pd.DataFrame(driver.collection.find(query))
-if data.empty:
-    st.warning("No news articles found for this week.")
-    st.stop()
+# Load data from MongoDB
+if query == st.session_state.get('query'):      # if the query is the same, use the persisted dataframe
+    data = st.session_state['data']
+else: 
+    with st.spinner("Wait for it...", show_time=True):
+        driver = Driver(st.secrets['username'], st.secrets['password'])
+        data = pd.DataFrame(driver.collection.find(query))
+        st.session_state['query'] = query 
+        st.session_state['data'] = data
+
+        if data.empty:
+            st.warning("No news articles found for this week.")
+            st.stop()
+
+
 
 # Ticker filtering 
 selected_tickers = st.multiselect('Select a Ticker', data['ticker'].unique())
@@ -48,9 +55,8 @@ if selected_tickers: data = data[data['ticker'].isin(selected_tickers)]
 
 # Preprocessing
 data["date"] = pd.to_datetime(data["date"])
-data["day"] = data["date"].dt.date
 data = (data
-        .drop(columns=['_id'])
+        .drop(columns=['_id', 'content'])
         .drop_duplicates(subset=['title'])      # scuffed removal for duplicates for now
         .reset_index(drop = True)
        )
@@ -58,7 +64,7 @@ data = (data
 print(data) 
 
 
-# -----------------------------------------------------------------------------------------------------------
+# ---------------------------------------------GRAPHS--------------------------------------------------------------
  
 # News table with expanders
 st.subheader("📰 News Articles")
@@ -66,6 +72,7 @@ st.dataframe(data)
 
 # Daily article count
 st.subheader("🗓️ Articles Per Day")
+data["day"] = data["date"].dt.date
 daily_counts = data.groupby("day").size().reset_index(name="count")
 fig = px.bar(daily_counts, x="day", y="count", title="Article Count by Day")
 st.plotly_chart(fig)
