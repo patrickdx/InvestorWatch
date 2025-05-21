@@ -161,3 +161,4 @@ cython_debug/
 
 # my stuff
 investor_watch/constants.py
+config.json

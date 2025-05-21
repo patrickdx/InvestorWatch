@@ -1,11 +1,10 @@
-import os
 import time
 from finvizfinance.screener.overview import Overview
 from finvizfinance.quote import finvizfinance
 import pandas as pd
 from datetime import datetime
 from Driver import Driver 
-from util import web_scrape_content, web_scrape_tags
+from util import web_scrape_content, web_scrape_tags, ROOT_DIR
 
 '''
     Ingests news data from Yahoo Finance and stores it in the NoSQL db.     
@@ -14,8 +13,9 @@ from util import web_scrape_content, web_scrape_tags
     TODO: take care of duplicates 
 '''
 
+
 driver = Driver()
-stock_list = pd.read_csv('SP500.csv')          # the stock list to query news from 
+stock_list = pd.read_csv(ROOT_DIR / 'SP500.csv')          # the stock list to query news from 
 
 def gather_news(ticker) -> pd.DataFrame:       
     
@@ -68,6 +68,7 @@ def ingest_news(df):
         driver.collection.insert_one(document)      # insert into mongodb
 
         
+
 
 def main():
     print("Gathering news...")

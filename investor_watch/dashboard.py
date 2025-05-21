@@ -1,3 +1,11 @@
+'''
+    Streamlit dashboard for displaying results from the MongoDB database.
+    - Displays a table of news articles for a selected week.
+    - Allows filtering by ticker.
+    - Displays a bar chart of articles per day.
+    - Displays a bar chart of the top tickers mentioned in the articles.
+'''
+
 
 import streamlit as st; st.set_page_config(layout='wide')
 from Driver import Driver
@@ -11,7 +19,7 @@ from collections import Counter
 # - Data flow: any time something must be updated on the screen, Streamlit reruns your entire Python script from top to bottom. (when user intracts / code changes)
 
 
-st.title("📈 Stock News :blue[Dashboard]")
+st.title("📈 Weekly Stock News :blue[Dashboard]")
 driver = Driver()
 
 
@@ -33,21 +41,23 @@ data = pd.DataFrame(driver.collection.find(query))
 if data.empty:
     st.warning("No news articles found for this week.")
     st.stop()
-print(data) 
 
 # Ticker filtering 
 selected_tickers = st.multiselect('Select a Ticker', data['ticker'].unique())
-print(selected_tickers)
 if selected_tickers: data = data[data['ticker'].isin(selected_tickers)]                     
-
-
-
 
 
 # Preprocessing
 data["date"] = pd.to_datetime(data["date"])
 data["day"] = data["date"].dt.date
-data = data.drop(columns=['content', '_id'])
+data = (data
+        .drop(columns=['_id'])
+        .drop_duplicates(subset=['title'])      # scuffed removal for duplicates for now
+        .reset_index(drop = True)
+       )
+
+print(data) 
+
 
 # -----------------------------------------------------------------------------------------------------------
  
