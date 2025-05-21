@@ -4,6 +4,7 @@
     - Allows filtering by ticker.
     - Displays a bar chart of articles per day.
     - Displays a bar chart of the top tickers mentioned in the articles.
+    - Data flow: any time something must be updated on the screen, Streamlit reruns your entire Python script from top to bottom. (when user intracts / code changes)
 '''
 
 
@@ -15,12 +16,10 @@ import plotly.express as px
 from collections import Counter
 
 
-# Streamlit Dashboard
-# - Data flow: any time something must be updated on the screen, Streamlit reruns your entire Python script from top to bottom. (when user intracts / code changes)
 
 
 st.title("📈 Weekly Stock News :blue[Dashboard]")
-driver = Driver()
+driver = Driver(st.secrets['username'], st.secrets['password'])
 
 
 # Weekly date selector
