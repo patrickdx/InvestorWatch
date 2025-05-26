@@ -18,6 +18,6 @@ Tired of keeping up with the market? This is a pipeline that attempts to log all
 - yfinance
 - MongoDB 
 - Streamlit
-- AWS Lambda 
+- AWS Lambda + Terraform
 
 
