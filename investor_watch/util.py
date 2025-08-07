@@ -44,11 +44,11 @@ def web_scrape_tags(article_url) -> list[str]:
     # Parse it with BeautifulSoup
     soup = BeautifulSoup(html, "html.parser")
 
-    spans = soup.find_all("span", class_="symbol yf-5ogvqh")
+    spans = soup.find_all("div", class_="name yf-90gdtp")
 
     # Extract and print the cleaned text
     return [s.get_text(strip=True) for s in spans]
 
     
 
-# print(web_scrape_content('https://finance.yahoo.com/news/third-point-details-stakes-u-001227888.html'))
+# print(web_scrape_tags('https://finance.yahoo.com/news/apple-announces-additional-100-billion-in-us-investment-following-trump-iphone-tariff-threat-210803143.html'))
