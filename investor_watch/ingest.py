@@ -5,6 +5,7 @@ from finvizfinance.quote import finvizfinance
 import pandas as pd
 from Driver import Driver 
 from util import web_scrape_content, web_scrape_tags
+from sentiment_analysis import SentimentAnalyzer
 
 '''
     Script that ingests news data from Yahoo Finance and stores it in MongoDB.  
@@ -77,7 +78,7 @@ def gather_news(ticker) -> pd.DataFrame:
         print("Error gathering news: ", ticker, e)
         return pd.DataFrame()  
 
-def ingest_news(df):
+def ingest_news(df, sentiment_analyzer):
     
     for _, row in df.iterrows():
    
@@ -87,8 +88,10 @@ def ingest_news(df):
             'link': row['Link'], 
             'source': row['Source'], 
             'ticker': row['Ticker'], 
+            # optional
             'tags': [],     # the other stocks the article is related to
-            'content': ''   # optional
+            'content': '',  # article content
+            'sentiment': '' # article sentiment based on title
         }   
         
         # try to add complementary article information
@@ -97,7 +100,13 @@ def ingest_news(df):
 
         if content: document['content'] = content 
         if tags: document['tags'] = tags 
-
+        
+        # Add sentiment analysis for the title
+        try:
+            sentiment_result = sentiment_analyzer.analyze_sentiment(row['Title'])
+            document['sentiment'] = sentiment_result['sentiment']
+        except Exception as e:
+            print(f"Error analyzing sentiment for title: {row['Title']}... Error: {e}")
 
         driver.collection.insert_one(document)      # insert into mongodb
 
@@ -106,6 +115,10 @@ if __name__ == '__main__':
 
     print("Gathering news...")
     driver = Driver()
+    
+    print("Loading sentiment analysis model...")
+    sentiment_analyzer = SentimentAnalyzer()
+    
     if random.randint(0,10) == 7: refresh_sp500_list()                  # 10% chance to refresh 
     stock_list = pd.read_csv('SP500.csv')
     start_time = time.time() 
@@ -114,7 +127,7 @@ if __name__ == '__main__':
         time.sleep(0.2)
         news_df = gather_news(ticker)
         time.sleep(0.2)
-        ingest_news(news_df)
+        ingest_news(news_df, sentiment_analyzer)
 
     print(f'that took {time.time() - start_time:.2f}')
 
