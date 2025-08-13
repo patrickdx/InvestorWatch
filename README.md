@@ -19,7 +19,6 @@ A real-time stock market monitoring and news analysis platform that tracks S&P 5
 <img src="assets/demo1.gif">
 </center>
 
-
 ### Installation
 
 1. Clone the repository:
@@ -27,7 +26,6 @@ A real-time stock market monitoring and news analysis platform that tracks S&P 5
    git clone https://github.com/yourusername/investor_watch.git
    cd investor_watch
    ```
-
 
 2. Install dependencies:
    ```bash
