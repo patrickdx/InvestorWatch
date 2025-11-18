@@ -7,7 +7,7 @@ A real-time stock market monitoring and news analysis platform that tracks S&P 5
 - **Interactive Dashboard**: Streamlit-based web interface for data visualization
 - **Sector & Ticker Analysis**: Track mentions and sentiment across different market sectors
 
-## 🛠 Technologies used
+## Technologies used
 
 - **Backend**: Python 3.8+
 - **Database**: MongoDB (Atlas)
@@ -15,9 +15,7 @@ A real-time stock market monitoring and news analysis platform that tracks S&P 5
 - **Data Processing**: Pandas, NumPy
 - **Visualization**: Plotly, Streamlit
 
-<center>
-<img src="assets/demo1.gif">
-</center>
+<img width="2020" height="1092" alt="image" src="https://github.com/user-attachments/assets/5e99a1a1-b21b-43b1-9500-e3df1cb09da6" />
 
 ### Installation
 
@@ -45,7 +43,7 @@ A real-time stock market monitoring and news analysis platform that tracks S&P 5
 
 
 
-## 🏃‍♂️ Usage
+## Usage
 
 1. Run the data ingestion script to fetch and analyze news:
    ```bash
